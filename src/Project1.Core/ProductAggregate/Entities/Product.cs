@@ -1,4 +1,4 @@
-﻿namespace Project1.Core.Product.Entities;
+﻿namespace Project1.Core.ProductAggregate.Entities;
 
 public class Product
 {
