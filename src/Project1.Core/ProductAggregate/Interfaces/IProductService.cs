@@ -4,5 +4,5 @@ namespace Project1.Core.ProductAggregate.Interfaces;
 
 public interface IProductService
 {
-    long AddProduct(AddProductDTO input);
+    Task<long> AddProduct(AddProductDTO input);
 }

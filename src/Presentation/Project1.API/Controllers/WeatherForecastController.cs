@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Project1.Core.ProductAggregate.Interfaces;
+using Project1.Core.ProductAggregate.Interfaces.DTOs;
 
 namespace Project1.API.Controllers
 {
@@ -12,10 +14,12 @@ namespace Project1.API.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IProductService _ps;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IProductService ps)
         {
             _logger = logger;
+            _ps = ps;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -28,6 +32,13 @@ namespace Project1.API.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpPost]
+        public async Task<long> gggggg(AddProductDTO inp)
+        {
+            var s = await _ps.AddProduct(inp);
+            return s;
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace Project1.Core.ProductAggregate.Entities;
+﻿using Project1.Core.General.Entities;
+using Project1.Core.General.Interfaces;
 
-public class Product
+namespace Project1.Core.ProductAggregate.Entities;
+
+public class Product: BaseEntity
 {
-    public long Id { get; set; }
     public string Name { get; set; }
 }
