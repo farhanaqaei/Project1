@@ -1,6 +1,6 @@
 ﻿namespace Project1.Core.General.Interfaces;
 
-public interface IGenericRepository<T> : IAsyncDisposable where T : IBaseEntity
+public interface IGenericRepository<T> : IDisposable, IAsyncDisposable where T : IBaseEntity
 {
     Task AddEntity(T entity);
     Task AddRangeEntities(List<T> entities);

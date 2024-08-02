@@ -13,8 +13,6 @@ public static class ConfigServiceCollectionExtension
     public static void AddServices(this IServiceCollection services, IConfiguration config)
     {
         AddDbContext(services, config);
-        //AddJWtAuthentication(services, config);
-        //AddIdentityCore(services);
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IProductService, ProductService>();

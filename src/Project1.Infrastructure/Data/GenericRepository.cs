@@ -3,7 +3,7 @@ using Project1.Core.General.Interfaces;
 
 namespace Project1.Infrastructure.Data;
 
-public class GenericRepository<T>: IGenericRepository<T> where T : class, IBaseEntity
+public class GenericRepository<T>: IGenericRepository<T>, IDisposable, IAsyncDisposable where T : class, IBaseEntity
 {
     private readonly ApplicationDbContext _context;
     private readonly DbSet<T> _dbSet;
@@ -62,6 +62,14 @@ public class GenericRepository<T>: IGenericRepository<T> where T : class, IBaseE
     public async Task SaveChanges()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        if (_context != null)
+        {
+            _context.Dispose();
+        }
     }
 
     public async ValueTask DisposeAsync()
