@@ -3,33 +3,32 @@ using Project1.Core.Logs.Entities;
 
 namespace Project1.Infrastructure.LogData;
 
-public class LogRepository : ILogRepository
+public class LogRepository(LogDbContext context) : ILogRepository
 {
-    private readonly LogDbContext _context;
 
     public async Task AddEntity(AuditLog entity)
     {
-        await _context.AuditLogs.AddAsync(entity);
+        await context.AuditLogs.AddAsync(entity);
     }
 
     public void Dispose()
     {
-        if (_context != null)
+        if (context != null)
         {
-            _context.Dispose();
+            context.Dispose();
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_context != null)
+        if (context != null)
         {
-            await _context.DisposeAsync();
+            await context.DisposeAsync();
         }
     }
 
     public async Task SaveChanges()
     {
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 }

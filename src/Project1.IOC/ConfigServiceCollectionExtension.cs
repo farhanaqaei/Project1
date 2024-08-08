@@ -19,6 +19,7 @@ public static class ConfigServiceCollectionExtension
         AddLogDbContext(services, config);
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<ILogRepository, LogRepository>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
     }

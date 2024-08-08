@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Project1.API.ActionFilters;
 
 namespace Project1.API.Controllers
 {
@@ -19,6 +20,7 @@ namespace Project1.API.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
+        [TypeFilter(typeof(AuditLoggingFilter))]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
