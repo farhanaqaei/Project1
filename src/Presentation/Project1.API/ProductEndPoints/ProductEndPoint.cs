@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
-using Project1.Core.ProductAggregate.Interfaces;
-using Project1.Core.ProductAggregate.Interfaces.DTOs;
+using Project1.Core.Products.Interfaces;
+using Project1.Core.Products.Interfaces.DTOs;
 
 namespace Project1.API.ProductEndPoints;
 

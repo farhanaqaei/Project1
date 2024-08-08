@@ -1,4 +1,4 @@
-﻿namespace Project1.Core.General.Interfaces;
+﻿namespace Project1.Core.Generals.Interfaces;
 
 public interface IGenericRepository<T> : IDisposable, IAsyncDisposable where T : IBaseEntity
 {

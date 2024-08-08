@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Project1.Core.General.Interfaces;
+using Project1.Core.Generals.Interfaces;
 
 namespace Project1.Infrastructure.Data;
 

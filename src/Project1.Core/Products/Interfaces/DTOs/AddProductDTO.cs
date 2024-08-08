@@ -1,4 +1,4 @@
-﻿namespace Project1.Core.ProductAggregate.Interfaces.DTOs;
+﻿namespace Project1.Core.Products.Interfaces.DTOs;
 
 public class AddProductDTO
 {

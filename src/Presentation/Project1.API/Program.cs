@@ -1,9 +1,4 @@
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Project1.Application.ProductServices;
-using Project1.Core.ProductAggregate.Interfaces;
-using Project1.Infrastructure.Data;
 using Project1.IOC;
 
 var builder = WebApplication.CreateBuilder(args);

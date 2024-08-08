@@ -1,9 +1,9 @@
-﻿using Project1.Core.General.Interfaces;
-using Project1.Core.ProductAggregate.Entities;
-using Project1.Core.ProductAggregate.Interfaces;
-using Project1.Core.ProductAggregate.Interfaces.DTOs;
+﻿using Project1.Core.Generals.Interfaces;
+using Project1.Core.Products.Entities;
+using Project1.Core.Products.Interfaces;
+using Project1.Core.Products.Interfaces.DTOs;
 
-namespace Project1.Application.ProductServices;
+namespace Project1.Application.Products;
 
 public class ProductService(IGenericRepository<Product> productRepo) : IProductService
 {
@@ -18,5 +18,10 @@ public class ProductService(IGenericRepository<Product> productRepo) : IProductS
     public async ValueTask DisposeAsync()
     {
         await productRepo.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        productRepo.Dispose();
     }
 }

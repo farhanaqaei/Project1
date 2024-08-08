@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Project1.Application.ProductServices;
-using Project1.Core.General.Interfaces;
-using Project1.Core.ProductAggregate.Interfaces;
+using Project1.Application.Logs;
+using Project1.Application.Products;
+using Project1.Core.Generals.Interfaces;
+using Project1.Core.Logs.Interfaces;
+using Project1.Core.Products.Interfaces;
 using Project1.Infrastructure.Data;
+using Project1.Infrastructure.LogData;
 
 namespace Project1.IOC;
 
@@ -13,9 +16,11 @@ public static class ConfigServiceCollectionExtension
     public static void AddServices(this IServiceCollection services, IConfiguration config)
     {
         AddDbContext(services, config);
+        AddLogDbContext(services, config);
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IAuditLogService, AuditLogService>();
     }
 
     public static void AddDbContext(this IServiceCollection services, IConfiguration config)
@@ -23,6 +28,14 @@ public static class ConfigServiceCollectionExtension
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+        });
+    }
+
+    public static void AddLogDbContext(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddDbContext<LogDbContext>(options =>
+        {
+            options.UseSqlServer(config.GetConnectionString("LogConnection"));
         });
     }
 

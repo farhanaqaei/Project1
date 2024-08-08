@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Project1.Core.ProductAggregate.Entities;
+using Project1.Core.Products.Entities;
 
 namespace Project1.Infrastructure.Data;
 
