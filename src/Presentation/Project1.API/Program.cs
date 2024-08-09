@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Project1.API.ActionFilters;
 using Project1.IOC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ExceptionLoggingFilter>();
+});
 
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddFastEndpoints();

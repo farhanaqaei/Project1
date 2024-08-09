@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project1.Infrastructure.LogData;
 
@@ -11,9 +12,11 @@ using Project1.Infrastructure.LogData;
 namespace Project1.Infrastructure.Migrations.LogDb
 {
     [DbContext(typeof(LogDbContext))]
-    partial class LogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240809062029_logTableModified")]
+    partial class logTableModified
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,7 @@ namespace Project1.Infrastructure.Migrations.LogDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AttrRouteInfo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ControllerName")
@@ -42,9 +46,11 @@ namespace Project1.Infrastructure.Migrations.LogDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExceptionMessage")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExceptionStackTrace")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("ExecutionDuration")
@@ -58,12 +64,15 @@ namespace Project1.Infrastructure.Migrations.LogDb
                         .HasColumnType("bit");
 
                     b.Property<string>("Parameters")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RequestBody")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseBody")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Timestamp")
