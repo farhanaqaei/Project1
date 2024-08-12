@@ -25,8 +25,8 @@ public static class ConfigServiceCollectionExtension
     {
         AddDbContext(services, config);
         AddLogDbContext(services, config);
-        AddJWtAuthentication(services, config);
         AddIdentity(services);
+        AddJWtAuthentication(services, config);
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<ILogRepository, LogRepository>();
