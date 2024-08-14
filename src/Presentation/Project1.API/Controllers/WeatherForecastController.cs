@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project1.API.ActionFilters;
+using Project1.Application.Products;
+using Project1.Core.Products.Interfaces;
 
 namespace Project1.API.Controllers
 {
@@ -14,10 +16,12 @@ namespace Project1.API.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IProductService _p;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IProductService p)
         {
             _logger = logger;
+            _p = p;
         }
 
         [Authorize]
@@ -32,6 +36,14 @@ namespace Project1.API.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpGet("GetP")]
+        public async Task<IActionResult> GetP([FromQuery] long id)
+        {
+            var product = await _p.GetProductAsync(id);
+
+            return Ok(product);
         }
     }
 }

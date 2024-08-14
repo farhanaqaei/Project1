@@ -11,6 +11,7 @@ using Project1.Core.Generals.Interfaces;
 using Project1.Core.Logs.Interfaces;
 using Project1.Core.Products.Interfaces;
 using Project1.Core.Users.Interfaces;
+using Project1.Infrastructure.Cache;
 using Project1.Infrastructure.Data;
 using Project1.Infrastructure.LogData;
 using Project1.Infrastructure.UserManagement.Entities;
@@ -28,6 +29,7 @@ public static class ConfigServiceCollectionExtension
         AddIdentity(services);
         AddJWtAuthentication(services, config);
 
+        services.AddScoped<ICacheManager, CacheManager>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<ILogRepository, LogRepository>();
         services.AddScoped<IAuditLogService, AuditLogService>();

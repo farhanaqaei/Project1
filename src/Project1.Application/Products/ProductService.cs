@@ -5,7 +5,7 @@ using Project1.Core.Products.Interfaces.DTOs;
 
 namespace Project1.Application.Products;
 
-public class ProductService(IGenericRepository<Product> productRepo) : IProductService
+public class ProductService(IGenericRepository<Product> productRepo, ICacheManager cacheManager) : IProductService
 {
     public async Task<long> AddProduct(AddProductDTO input)
     {
@@ -13,6 +13,23 @@ public class ProductService(IGenericRepository<Product> productRepo) : IProductS
         await productRepo.AddEntity(product);
         await productRepo.SaveChanges();
         return product.Id;
+    }
+
+    public async Task<Product> GetProductAsync(long productId)
+    {
+        string cacheKey = $"Product_{productId}";
+        var product = cacheManager.Get<Product>(cacheKey);
+
+        if (product == null)
+        {
+            product = await productRepo.GetEntityById(productId);
+            if (product != null)
+            {
+                cacheManager.Set(cacheKey, product, TimeSpan.FromHours(1));
+            }
+        }
+
+        return product;
     }
 
     public async ValueTask DisposeAsync()

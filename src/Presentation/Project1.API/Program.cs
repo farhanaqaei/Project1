@@ -1,4 +1,3 @@
-using FastEndpoints;
 using Project1.API.ActionFilters;
 using Project1.IOC;
 
@@ -8,6 +7,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {
@@ -25,7 +25,6 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddServices(builder.Configuration);
-builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
 
@@ -44,7 +43,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseFastEndpoints();
 
 app.Run();
