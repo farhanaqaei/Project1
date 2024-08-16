@@ -82,7 +82,7 @@ public static class ConfigServiceCollectionExtension
 
     public static void AddIdentity(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
         {
             options.User.RequireUniqueEmail = true;
             options.Password.RequireDigit = true;

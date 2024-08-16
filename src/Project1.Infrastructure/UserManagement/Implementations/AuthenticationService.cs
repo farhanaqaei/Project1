@@ -26,7 +26,7 @@ public class AuthenticationService(UserManager<ApplicationUser> userManager, ICo
         {
             Subject = new ClaimsIdentity(new[]
             {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email)
                 }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(configuration["JwtSettings:ExpiryMinutes"])),
