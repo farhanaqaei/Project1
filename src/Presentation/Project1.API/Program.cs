@@ -1,4 +1,5 @@
 using Project1.API.ActionFilters;
+using Project1.Infrastructure.Data;
 using Project1.IOC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,19 @@ builder.Services.AddControllers(options =>
 builder.Services.AddServices(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await ApplicationDbContextSeed.SeedRolesAndAdminUserAsync(services);
+    }
+    catch (Exception ex)
+    {
+        // log ex
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
