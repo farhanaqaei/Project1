@@ -4,7 +4,7 @@ using Project1.Core.Logs.Entities;
 using Project1.Core.Logs.Interfaces;
 using System.Diagnostics;
 
-namespace Project1.API.ActionFilters;
+namespace Project1.API.ActionFilters.AuditlogFilters;
 
 public class AuditLoggingFilter(IAuditLogService auditLogService) : ActionFilterAttribute
 {

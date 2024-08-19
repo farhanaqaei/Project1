@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project1.API.ActionFilters;
+using Project1.API.ActionFilters.AuditlogFilters;
 using Project1.Application.Products;
 using Project1.Core.Products.Interfaces;
 
