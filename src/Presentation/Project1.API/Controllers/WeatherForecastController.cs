@@ -24,7 +24,7 @@ namespace Project1.API.Controllers
             _p = p;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User1")]
         [HttpGet(Name = "GetWeatherForecast")]
         [TypeFilter(typeof(AuditLoggingFilter))]
         public IEnumerable<WeatherForecast> Get()
