@@ -17,6 +17,8 @@ namespace Project1.Infrastructure.UserManagement.Implementations;
 
 public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration) : IAuthenticationService
 {
+    #region authentication methods
+
     public async Task<string> AuthenticateAsync(LoginRequestDTO loginRequest)
     {
         var user = await userManager.FindByEmailAsync(loginRequest.Email);
@@ -98,6 +100,40 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
         return RegisterResultDTO.Failure(creationErrors);
     }
 
+    #endregion
+
+    #region user role management
+
+    public async Task<bool> AssignRoleToUserAsync(UserRoleDTO input)
+    {
+        var user = await userManager.FindByIdAsync(input.UserId.ToString());
+        if (user == null) return false;
+
+        var result = await userManager.AddToRoleAsync(user, input.RoleName);
+        return result.Succeeded;
+    }
+
+    public async Task<bool> RemoveRoleFromUserAsync(UserRoleDTO input)
+    {
+        var user = await userManager.FindByIdAsync(input.UserId.ToString());
+        if (user == null) return false;
+
+        var result = await userManager.RemoveFromRoleAsync(user, input.RoleName);
+        return result.Succeeded;
+    }
+
+    public async Task<List<string>> GetUserRolesAsync(long userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return new List<string>();
+
+        return new List<string>(await userManager.GetRolesAsync(user));
+    }
+
+    #endregion
+
+    #region user permission management
+
     public async Task<List<PermissionDTO>> GetUserPermissionsAsync(long userId)
     {
         return await db.UserPermissions
@@ -109,34 +145,6 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
                 Description = up.Permission.Description,
             })
             .ToListAsync();
-    }
-
-    public async Task<List<PermissionDTO>> GetRolePermissionsAsync(long userId)
-    {
-        var user = await userManager.FindByIdAsync(userId.ToString());
-        var roles = await userManager.GetRolesAsync(user);
-        var permissions = new List<PermissionDTO>();
-
-        foreach (var roleName in roles)
-        {
-            var role = await roleManager.FindByNameAsync(roleName);
-            if (role != null)
-            {
-                var rolePermissions = await db.RolePermissions
-                    .Where(rp => rp.RoleId == role.Id)
-                    .Select(rp => new PermissionDTO
-                    {
-                        Id = rp.Permission.Id,
-                        Name = rp.Permission.Name,
-                        Description = rp.Permission.Description
-                    })
-                    .ToListAsync();
-
-                permissions.AddRange(rolePermissions);
-            }
-        }
-
-        return permissions.Distinct().ToList();
     }
 
     public async Task<bool> AddPermissionToUserAsync(UserPermissionDTO input)
@@ -249,6 +257,55 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
         return true;
     }
 
+    public async Task<bool> CheckUserPermissionAsync(UserPermissionDTO input)
+    {
+        var permission = await db.Permissions.FirstOrDefaultAsync(p => p.Name == input.PermissionName);
+        if (permission == null) return false;
+
+        var userPermission = await db.UserPermissions
+            .AnyAsync(up => up.UserId == input.UserId && up.PermissionId == permission.Id && up.IsGranted);
+
+        if (userPermission) return true;
+
+        var user = await userManager.FindByIdAsync(input.UserId.ToString());
+        if (user == null) return false;
+
+        var rolePermissions = await GetRolePermissionsAsync(user.Id);
+        return rolePermissions.Any(p => p.Name == input.PermissionName);
+    }
+
+    #endregion
+
+    #region role permission management
+
+    public async Task<List<PermissionDTO>> GetRolePermissionsAsync(long userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        var roles = await userManager.GetRolesAsync(user);
+        var permissions = new List<PermissionDTO>();
+
+        foreach (var roleName in roles)
+        {
+            var role = await roleManager.FindByNameAsync(roleName);
+            if (role != null)
+            {
+                var rolePermissions = await db.RolePermissions
+                    .Where(rp => rp.RoleId == role.Id)
+                    .Select(rp => new PermissionDTO
+                    {
+                        Id = rp.Permission.Id,
+                        Name = rp.Permission.Name,
+                        Description = rp.Permission.Description
+                    })
+                    .ToListAsync();
+
+                permissions.AddRange(rolePermissions);
+            }
+        }
+
+        return permissions.Distinct().ToList();
+    }
+
     public async Task<bool> AddPermissionToRoleAsync(RolePermissionDTO input)
     {
         var role = await roleManager.FindByNameAsync(input.RoleName);
@@ -296,49 +353,6 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
         return false;
     }
 
-    public async Task<bool> AssignRoleToUserAsync(UserRoleDTO input)
-    {
-        var user = await userManager.FindByIdAsync(input.UserId.ToString());
-        if (user == null) return false;
-
-        var result = await userManager.AddToRoleAsync(user, input.RoleName);
-        return result.Succeeded;
-    }
-
-    public async Task<bool> RemoveRoleFromUserAsync(UserRoleDTO input)
-    {
-        var user = await userManager.FindByIdAsync(input.UserId.ToString());
-        if (user == null) return false;
-
-        var result = await userManager.RemoveFromRoleAsync(user, input.RoleName);
-        return result.Succeeded;
-    }
-
-    public async Task<List<string>> GetUserRolesAsync(long userId)
-    {
-        var user = await userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return new List<string>();
-
-        return new List<string>(await userManager.GetRolesAsync(user));
-    }
-
-    public async Task<bool> CheckUserPermissionAsync(UserPermissionDTO input)
-    {
-        var permission = await db.Permissions.FirstOrDefaultAsync(p => p.Name == input.PermissionName);
-        if (permission == null) return false;
-
-        var userPermission = await db.UserPermissions
-            .AnyAsync(up => up.UserId == input.UserId && up.PermissionId == permission.Id && up.IsGranted);
-
-        if (userPermission) return true;
-
-        var user = await userManager.FindByIdAsync(input.UserId.ToString());
-        if (user == null) return false;
-
-        var rolePermissions = await GetRolePermissionsAsync(user.Id);
-        return rolePermissions.Any(p => p.Name == input.PermissionName);
-    }
-
     public async Task<bool> CheckRolePermissionAsync(RolePermissionDTO input)
     {
         var role = await roleManager.FindByNameAsync(input.RoleName);
@@ -351,26 +365,9 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
             .AnyAsync(rp => rp.RoleId == role.Id && rp.PermissionId == permission.Id);
     }
 
-    public async Task<PermissionDTO> AddPermissionAsync(string permissionName)
-    {
-        if (string.IsNullOrWhiteSpace(permissionName))
-        {
-            throw new ArgumentException("Permission name cannot be empty.", nameof(permissionName));
-        }
+    #endregion
 
-        var existingPermission = await db.Permissions
-                                         .FirstOrDefaultAsync(p => p.Name == permissionName);
-        if (existingPermission != null)
-        {
-            throw new InvalidOperationException("Permission already exists.");
-        }
-
-        var permission = new Permission { Name = permissionName };
-        db.Permissions.Add(permission);
-        await db.SaveChangesAsync();
-
-        return new PermissionDTO { Id = permission.Id, Name = permission.Name };
-    }
+    #region role management
 
     public async Task<RoleDTO> AddRoleAsync(string roleName)
     {
@@ -395,4 +392,136 @@ public class AuthenticationService(ApplicationDbContext db, ICacheManager cacheM
 
         return new RoleDTO { Id = role.Id, Name = role.Name };
     }
+
+    public async Task<bool> RemoveRoleAsync(string roleName)
+    {
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            throw new ArgumentException("Role name cannot be empty.", nameof(roleName));
+        }
+
+        var role = await roleManager.FindByNameAsync(roleName);
+
+        if (role == null)
+        {
+            throw new InvalidOperationException("Role does not exist.");
+        }
+
+        // Remove related role permissions
+        var rolePermissions = db.RolePermissions.Where(rp => rp.RoleId == role.Id);
+        db.RolePermissions.RemoveRange(rolePermissions);
+
+        // Remove user-role associations
+        var userRoles = db.UserRoles.Where(ur => ur.RoleId == role.Id);
+        db.UserRoles.RemoveRange(userRoles);
+
+        // Remove the role itself
+        var result = await roleManager.DeleteAsync(role);
+
+        if (!result.Succeeded)
+        {
+            //throw new Exception("Failed to delete role: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            return false;
+        }
+
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<RoleDTO>> GetAllRolesAsync()
+    {
+        var roles = await roleManager.Roles.ToListAsync();
+
+        return roles.Select(role => new RoleDTO
+        {
+            Id = role.Id,
+            Name = role.Name
+        }).ToList();
+    }
+
+    #endregion
+
+    #region permission management
+
+    public async Task<PermissionDTO> AddPermissionAsync(string permissionName)
+    {
+        if (string.IsNullOrWhiteSpace(permissionName))
+        {
+            throw new ArgumentException("Permission name cannot be empty.", nameof(permissionName));
+        }
+
+        var existingPermission = await db.Permissions
+                                         .FirstOrDefaultAsync(p => p.Name == permissionName);
+        if (existingPermission != null)
+        {
+            throw new InvalidOperationException("Permission already exists.");
+        }
+
+        var permission = new Permission { Name = permissionName };
+        db.Permissions.Add(permission);
+        await db.SaveChangesAsync();
+
+        return new PermissionDTO { Id = permission.Id, Name = permission.Name };
+    }
+
+    public async Task<bool> RemovePermissionAsync(string permissionName)
+    {
+        if (string.IsNullOrWhiteSpace(permissionName))
+        {
+            throw new ArgumentException("Permission name cannot be empty.", nameof(permissionName));
+        }
+
+        var permission = await db.Permissions
+            .FirstOrDefaultAsync(p => p.Name == permissionName);
+
+        if (permission == null)
+        {
+            throw new InvalidOperationException("Permission does not exist.");
+        }
+
+        // Remove related user permissions and role permissions
+        var userPermissions = db.UserPermissions.Where(up => up.PermissionId == permission.Id);
+        var rolePermissions = db.RolePermissions.Where(rp => rp.PermissionId == permission.Id);
+
+        db.UserPermissions.RemoveRange(userPermissions);
+        db.RolePermissions.RemoveRange(rolePermissions);
+
+        db.Permissions.Remove(permission);
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<PermissionDTO>> GetAllPermissionsAsync()
+    {
+        var permissions = await db.Permissions.ToListAsync();
+
+        return permissions.Select(permission => new PermissionDTO
+        {
+            Id = permission.Id,
+            Name = permission.Name
+        }).ToList();
+    }
+
+    public async Task<List<PermissionDTO>> GetAllPermissionsAsync(string roleName)
+    {
+        var role = await roleManager.FindByNameAsync(roleName);
+
+        if (role == null)
+        {
+            throw new KeyNotFoundException($"Role '{roleName}' not found.");
+        }
+
+        var permissions = await db.RolePermissions
+            .Where(rp => rp.RoleId == role.Id)
+            .Select(rp => rp.Permission)
+            .ToListAsync();
+
+        return permissions.Select(permission => new PermissionDTO
+        {
+            Id = permission.Id,
+            Name = permission.Name
+        }).ToList();
+    }
+
+    #endregion
 }
