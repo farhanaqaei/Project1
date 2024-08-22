@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Project1.API.ActionFilters.AuditlogFilters;
 using Project1.Application.Products;
 using Project1.Core.Products.Interfaces;
@@ -24,7 +25,8 @@ namespace Project1.API.Controllers
             _p = p;
         }
 
-        [Authorize(Roles = "User1")]
+        //uthorize(Roles = "User1")]
+        //[EnableRateLimiting("fixed")]
         [HttpGet(Name = "GetWeatherForecast")]
         [TypeFilter(typeof(AuditLoggingFilter))]
         public IEnumerable<WeatherForecast> Get()
