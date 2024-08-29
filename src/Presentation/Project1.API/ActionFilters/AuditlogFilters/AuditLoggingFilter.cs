@@ -12,6 +12,15 @@ public class AuditLoggingFilter(IAuditLogService auditLogService) : ActionFilter
     {
         var stopwatch = Stopwatch.StartNew();
 
+        var ipAddress = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
+        var userId = context.HttpContext.User.Identity.IsAuthenticated ? context.HttpContext.User.Identity.Name : "Anonymous";
+        var requestPath = context.HttpContext.Request.Path;
+        var queryString = context.HttpContext.Request.QueryString.ToString();
+        var referrer = context.HttpContext.Request.Headers["Referer"].ToString();
+        //var correlationId = context.HttpContext.Request.Headers["X-Correlation-ID"].ToString() ?? Guid.NewGuid().ToString();
+        var requestSize = context.HttpContext.Request.ContentLength ?? 0;
+
         var actionContext = context.RouteData;
         var controllerName = actionContext?.Values["controller"]?.ToString();
         var actionName = actionContext?.Values["action"]?.ToString();
@@ -29,6 +38,7 @@ public class AuditLoggingFilter(IAuditLogService auditLogService) : ActionFilter
         }
 
         var responseBody = resultContext.HttpContext.Response.StatusCode.ToString();
+        //var responseSize = resultContext.HttpContext.Response.ContentLength ?? 0;
 
         stopwatch.Stop();
 
@@ -42,7 +52,16 @@ public class AuditLoggingFilter(IAuditLogService auditLogService) : ActionFilter
             Parameters = string.Join(", ", parameters),
             ResponseBody = responseBody,
             Timestamp = timestamp,
-            ExecutionDuration = stopwatch.ElapsedMilliseconds
+            ExecutionDuration = stopwatch.ElapsedMilliseconds,
+            IpAddress = ipAddress,
+            UserAgent = userAgent,
+            UserId = userId,
+            RequestPath = requestPath,
+            QueryString = queryString,
+            Referrer = referrer,
+            //CorrelationId = correlationId,
+            RequestSize = requestSize,
+            //ResponseSize = responseSize
         };
 
         await auditLogService.LogAsync(log);
