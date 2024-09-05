@@ -25,7 +25,7 @@ namespace Project1.API.Controllers
             _p = p;
         }
 
-        //[Authorize(Roles = "User1")]
+        [Authorize(Roles = "User")]
         //[EnableRateLimiting("fixed")]
         [HttpGet(Name = "GetWeatherForecast")]
         [TypeFilter(typeof(AuditLoggingFilter))]
