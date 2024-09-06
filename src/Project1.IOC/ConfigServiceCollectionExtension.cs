@@ -13,6 +13,7 @@ using Project1.Core.Products.Interfaces;
 using Project1.Core.Users.Interfaces;
 using Project1.Infrastructure.Cache;
 using Project1.Infrastructure.Data;
+using Project1.Infrastructure.Jobs;
 using Project1.Infrastructure.LogData;
 using Project1.Infrastructure.UserManagement.Entities;
 using Project1.Infrastructure.UserManagement.Implementations;
@@ -34,7 +35,9 @@ public static class ConfigServiceCollectionExtension
         services.AddScoped<ILogRepository, LogRepository>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>(); 
+        services.AddScoped<IJobService, JobService>();
+
     }
 
     public static void AddDbContext(this IServiceCollection services, IConfiguration config)

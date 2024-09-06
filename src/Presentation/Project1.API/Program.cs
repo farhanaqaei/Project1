@@ -1,10 +1,16 @@
+using Hangfire;
 using Microsoft.OpenApi.Models;
 using Project1.API.ActionFilters.AuditlogFilters;
+using Project1.Core.Generals.Interfaces;
 using Project1.Infrastructure.Data;
 using Project1.IOC;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHangfire(configuration =>
+    configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+builder.Services.AddHangfireServer();
 
 // Rate Limiter Policy to use arbitrary
 builder.Services.AddRateLimiter(options =>
@@ -105,6 +111,13 @@ using (var scope = app.Services.CreateScope())
         // log ex
     }
 }
+
+app.UseHangfireDashboard();
+
+RecurringJob.AddOrUpdate<IJobService>(
+    "simple-test-recurring-job",
+    jobService => jobService.WriteJobExecutionTime(), // Directly inject job service
+    Cron.Minutely);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
